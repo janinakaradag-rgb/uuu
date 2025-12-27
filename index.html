@@ -1,52 +1,127 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>С Новым Годом!</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AR Photo</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      min-height: 100vh;
+      height: 100%;
       background: #0b0f14;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .wrap {
+      position: fixed;
+      inset: 0;
       display: grid;
       place-items: center;
-      color: #fff;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
-    .wrap {
-      width: min(900px, 94vw);
-      text-align: center;
-    }
-    video {
-      width: 100%;
-      border-radius: 22px;
-      box-shadow: 0 18px 60px rgba(0,0,0,.5);
+
+    /* Видео на весь экран */
+    #arVideo {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      display: none;          /* появится после клика */
+      z-index: 10;
       background: #000;
     }
-    h1 {
-      margin: 18px 0 0;
-      font-size: clamp(28px, 5vw, 48px);
-      text-shadow: 0 2px 18px rgba(0,0,0,.55);
+
+    /* Подложка + подсказка */
+    .hint {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 20;
+      pointer-events: none;
+      padding: 24px;
     }
-    .sub {
-      margin-top: 8px;
-      opacity: .9;
-      font-size: 16px;
-      line-height: 1.4;
+
+    .card {
+      max-width: 720px;
+      width: min(92vw, 720px);
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 18px;
+      padding: 18px 18px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      text-align: center;
+      color: rgba(255,255,255,.92);
+      line-height: 1.35;
     }
+
+    .card h1 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 15px;
+      color: rgba(255,255,255,.85);
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.16);
+      font-size: 14px;
+      color: rgba(255,255,255,.92);
+    }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <video src="video.mp4" autoplay muted playsinline loop controls></video>
 
-    <div class="sub">
-      Желаем счастья и любви!<br>
-      Пусть в вашей жизни будет театр<br>
-      и много светлых мгновений!
+  <!-- ВАЖНО: src = имя вашего файла в репозитории -->
+  <video
+    id="arVideo"
+    src="123456.mp4"
+    playsinline
+    muted
+    loop
+    preload="auto">
+  </video>
+
+  <div class="hint" id="hint">
+    <div class="card">
+      <h1>Оживление фото</h1>
+      <p>Нажмите один раз по экрану, чтобы запустить видео. Если не стартует — нажмите ещё раз.</p>
+      <div class="badge">Тап по экрану → видео</div>
     </div>
   </div>
+
+  <script>
+    const video = document.getElementById('arVideo');
+    const hint  = document.getElementById('hint');
+
+    async function start() {
+      try {
+        video.style.display = 'block';
+        await video.play();
+        hint.classList.add('hidden');
+      } catch (e) {
+        // На некоторых телефонах нужен второй тап — оставляем подсказку
+        console.log('play blocked, tap again', e);
+      }
+    }
+
+    // Первый тап запускает видео (браузерный автоплей блокируется без жеста)
+    document.body.addEventListener('click', start, { once: false });
+    document.body.addEventListener('touchstart', start, { passive: true });
+  </script>
+
 </body>
 </html>
-
